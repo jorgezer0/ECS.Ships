@@ -10,5 +10,5 @@ namespace Ships.ECS
         public float3 Value;
     }
 
-    public class TargetComponent : ComponentDataWrapper<Target> { }
+    public class TargetComponent : ComponentDataProxy<Target> { }
 }

@@ -9,5 +9,5 @@ namespace Ships.ECS
         public float Value;
     }
 
-    public class MoveSpeedComponent : ComponentDataWrapper<MoveSpeed> { }
+    public class MoveSpeedComponent : ComponentDataProxy<MoveSpeed> { }
 }

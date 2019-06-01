@@ -4,6 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Burst;
+using Unity.Physics;
 using UnityEngine;
 
 namespace Ships.ECS
@@ -13,28 +14,27 @@ namespace Ships.ECS
     {
         
         [BurstCompile]
-        struct MovementJob : IJobProcessComponentData<Position, Rotation, MoveSpeed, Target>
+        struct MovementJob : IJobForEach<Translation, Rotation, MoveSpeed, Target>
         {
             public float topBound;
             public float bottonBound;
             public float deltaTime;
             public float rotationSpeed;
-            public float team;
-            public bool isTarget;
 
-            public void Execute(ref Position pos, ref Rotation rot, [ReadOnly] ref MoveSpeed speed, [ReadOnly] ref Target target)
+            public void Execute(ref Translation pos, ref Rotation rot, [ReadOnly] ref MoveSpeed speed, [ReadOnly] ref Target target)
             {
                 float3 value = pos.Value;
                 Quaternion rotVal = rot.Value;
                 
                 value += deltaTime * speed.Value * math.forward(rot.Value);
-                
+
                 var dir = math.normalize(target.Value - value);
                 var look = Quaternion.LookRotation(dir);
                 rotVal = Quaternion.Slerp(rotVal, look, deltaTime * rotationSpeed);
 
                 rot.Value = rotVal;
                 pos.Value = value;
+                //velocity.Linear = math.forward(look) * speed.Value;
             }
         }
 

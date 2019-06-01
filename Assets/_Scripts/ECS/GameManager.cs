@@ -2,6 +2,8 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Rendering;
+using Unity.Physics;
 using UnityEngine;
 
 namespace Ships.ECS
@@ -27,6 +29,13 @@ namespace Ships.ECS
         public GameObject enemyShipPrefabA;
         public GameObject enemyShipPrefabB;
         public float enemySpeed = 1f;
+        private Entity sourceEntity;
+
+        [Header("Projectile Settings")]
+        public GameObject projectile;
+        public EntityArchetype projectileArchetype;
+        public UnityEngine.Mesh projectileMesh;
+        public UnityEngine.Material projectileMaterial;
 
         [Header("Spawn Settings")]
         public int enemyShipCount = 1;
@@ -40,7 +49,7 @@ namespace Ships.ECS
         int count;
         #endregion
 
-        EntityManager manager;
+        public EntityManager manager;
 
         private void Awake()
         {
@@ -54,6 +63,8 @@ namespace Ships.ECS
             manager = World.Active.GetOrCreateManager<EntityManager>();
             AddShips(enemyShipCount, 1);
             AddShips(enemyShipCount, 2);
+
+            projectileArchetype = manager.CreateArchetype(typeof(Projectile));
         }
 
         private void Update()
@@ -81,12 +92,17 @@ namespace Ships.ECS
             NativeArray<Entity> entities = new NativeArray<Entity>(amount, Allocator.Temp);
             if (team == 1)
             {
-                manager.Instantiate(enemyShipPrefabA, entities);
-            } else if (team == 2)
-            {
-                manager.Instantiate(enemyShipPrefabB, entities);
+                sourceEntity = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyShipPrefabA, World.Active);
             }
-            
+            else if (team == 2)
+            {
+                sourceEntity = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyShipPrefabB, World.Active);
+            }
+
+            manager.Instantiate(sourceEntity, entities);
+
+            //BlobAssetReference<Unity.Physics.Collider> sourceCollider = manager.GetComponentData<PhysicsCollider>(sourceEntity).Value;
+
             for (int i = 0; i < amount; i++)
             {
                 float xVal = UnityEngine.Random.Range(leftBound, rightBound);
@@ -95,17 +111,18 @@ namespace Ships.ECS
 
                 if (team == 1)
                 {
-                    manager.SetComponentData(entities[i], new Position { Value = new float3(xVal, yVal, topBound + zVal) });
+                    manager.SetComponentData(entities[i], new Translation { Value = new float3(xVal, yVal, topBound + zVal) });
                     manager.SetComponentData(entities[i], new Rotation { Value = new quaternion(0, 1, 0, 0) });
                     manager.AddComponentData(entities[i], new Team_A { });
-                }                            
-                else if (team == 2)          
-                {                            
-                    manager.SetComponentData(entities[i], new Position { Value = new float3(xVal, yVal, bottonBound - zVal) });
+                }
+                else if (team == 2)
+                {
+                    manager.SetComponentData(entities[i], new Translation { Value = new float3(xVal, yVal, bottonBound - zVal) });
                     manager.SetComponentData(entities[i], new Rotation { Value = new quaternion(0, 0, 0, 0) });
                     manager.AddComponentData(entities[i], new Team_B { });
                 }
                 manager.SetComponentData(entities[i], new MoveSpeed { Value = enemySpeed });
+                //manager.SetComponentData(entities[i], new PhysicsCollider { Value = sourceCollider });
             }
 
             entities.Dispose();
@@ -113,10 +130,20 @@ namespace Ships.ECS
             count += amount;
         }
 
+        public void CreateProjectile(float3 pos, quaternion rot)
+        {
+            var newProjectile = manager.Instantiate(projectile);
+            manager.SetComponentData(newProjectile, new Translation { Value = pos });
+            manager.SetComponentData(newProjectile, new Rotation { Value = rot });
+            manager.SetComponentData(newProjectile, new MoveSpeed { Value = 500 });
+
+            
+            
+        }
+
         void OnGUI()
         {
-            GUI.TextArea(new Rect(10, 10, 150, 100), fps.ToString() + "\n\n" + count.ToString() + "\n\n" + entities.Length.ToString());            
+            GUI.TextArea(new Rect(10, 10, 150, 100), fps.ToString() + "\n\n" + count.ToString() + "\n\n" + entities.Length.ToString());
         }
     }
-
 }

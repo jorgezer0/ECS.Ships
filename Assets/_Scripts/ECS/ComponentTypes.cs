@@ -7,4 +7,6 @@ namespace Ships.ECS
 {
     public struct Team_A : IComponentData { }
     public struct Team_B : IComponentData { }
+
+    public struct Projectile : IComponentData { }
 }
