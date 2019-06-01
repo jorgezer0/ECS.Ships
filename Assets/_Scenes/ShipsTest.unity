@@ -163,7 +163,7 @@ MonoBehaviour:
   projectile: {fileID: 0}
   projectileMesh: {fileID: 0}
   projectileMaterial: {fileID: 0}
-  enemyShipCount: 100
+  enemyShipCount: 2000
   enemyShipIncrement: 500
   mShip1: {fileID: 0}
   mShip2: {fileID: 0}
