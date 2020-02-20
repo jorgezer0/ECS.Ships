@@ -21,7 +21,7 @@ namespace Ships.ECS
         {
             [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Translation> enemyArray;
 
-            public void Execute(Entity entity, int i, [ReadOnly] ref Translation translation, [ReadOnly] ref Rotation rotation, [ReadOnly] ref Target target, [ReadOnly] ref Team_A team_A)
+            public void Execute(Entity entity, int i, [ReadOnly] ref Translation translation, [ReadOnly] ref Rotation rotation, ref Target target, [ReadOnly] ref Team_A team_A)
             {
                 var lastDot = 0f;
                 for (int j = 0; j < enemyArray.Length; j++)
@@ -46,7 +46,7 @@ namespace Ships.ECS
         {
             [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Translation> enemyArray;
 
-            public void Execute(Entity entity, int i, [ReadOnly] ref Translation translation, [ReadOnly] ref Rotation rotation, [ReadOnly] ref Target target, [ReadOnly] ref Team_B team_B)
+            public void Execute(Entity entity, int i, [ReadOnly] ref Translation translation, [ReadOnly] ref Rotation rotation, ref Target target, [ReadOnly] ref Team_B team_B)
             {
                 var lastDot = 0f;
                 for (int j = 0; j < enemyArray.Length; j++)
